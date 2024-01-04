@@ -43,15 +43,18 @@ def root():
     return {"message": "Hello"}
 
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    return JSONResponse(content={"error": str(exc)}, status_code=422)
+
 @app.post("/slack/events")
-async def endpoint(request: Request):
+async def slack_event_endpoint(request: Request):
     try:
-        response = await slack_handler.handle(request.body())
-        return JSONResponse(content=response.body.get("challenge"), status_code=response.status)
-    except HTTPException as e:
-        return JSONResponse(content={"error": str(e.detail)}, status_code=e.status_code)
+        payload = await request.json()
+        challenge = payload.get("challenge")
+        return JSONResponse(content={"challenge": challenge})
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @slack_app.event("app_mention")
