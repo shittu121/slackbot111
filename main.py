@@ -30,7 +30,7 @@ def send_to_customgpt(prompt):
         "accept": "application/json",
         "content-type": "application/json",
         "authorization": "Bearer 2752|DzIV0GyaesV3SJeqsdWK9WSTTyS5Ivh5qIlzem2K"
-
+    }
     response = requests.post(url, json=payload, headers=headers)
     return response.text
 @app.get("/")
