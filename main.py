@@ -18,7 +18,7 @@ slack_app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
 slack_handler = SlackRequestHandler(slack_app)
 
 def send_to_customgpt(prompt):
-    url = "https://app.customgpt.ai/api/v1/projects/18663/conversations/651eff24-95d4-4630-98fd-49775b0e2e6e/messages?stream=false&lang=en"
+    url = os.environ.get("GPT_URL")
 
     payload = {
         "prompt": prompt,
@@ -29,12 +29,14 @@ def send_to_customgpt(prompt):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": "Bearer 2752|DzIV0GyaesV3SJeqsdWK9WSTTyS5Ivh5qIlzem2K"
+        "authorization": f"Bearer {os.environ.get("API_KEY")}"
     }
 
     response = requests.post(url, json=payload, headers=headers)
     return response.text
-
+@app.get("/")
+async def index(request: Request):
+    return
 @app.post("/slack/events")
 async def endpoint(request: Request):
     try:
@@ -76,6 +78,3 @@ def handle_message_events(body, logger):
     # Log the 'message' events
     logger.info(body)
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
