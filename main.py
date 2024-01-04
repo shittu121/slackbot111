@@ -47,7 +47,7 @@ def root():
 async def endpoint(request: Request):
     try:
         response = await slack_handler.handle(request.body())
-        return JSONResponse(content=response.body, status_code=response.status)
+        return JSONResponse(content=response.body.get("challenge"), status_code=response.status)
     except HTTPException as e:
         return JSONResponse(content={"error": str(e.detail)}, status_code=e.status_code)
     except Exception as e:
