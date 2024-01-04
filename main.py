@@ -10,6 +10,7 @@ import os
 
 # Load environment variables from .env file
 from dotenv import load_dotenv
+
 load_dotenv()
 
 app = FastAPI()
@@ -17,6 +18,7 @@ app = FastAPI()
 slack_app = App(token=os.environ.get("SLACK_BOT_TOKEN"))
 slack_handler = SlackRequestHandler(slack_app)
 
+API_KEY = os.environ.get("API_KEY")
 def send_to_customgpt(prompt):
     url = os.environ.get("GPT_URL")
 
@@ -29,13 +31,18 @@ def send_to_customgpt(prompt):
     headers = {
         "accept": "application/json",
         "content-type": "application/json",
-        "authorization": "Bearer 2752|DzIV0GyaesV3SJeqsdWK9WSTTyS5Ivh5qIlzem2K"
+        "authorization": f"Bearer {API_KEY}"
     }
+
     response = requests.post(url, json=payload, headers=headers)
     return response.text
+
+
 @app.get("/")
 async def index(request: Request):
-    return
+    return {"message": "Hello"}
+
+
 @app.post("/slack/events")
 async def endpoint(request: Request):
     try:
@@ -45,6 +52,7 @@ async def endpoint(request: Request):
         return JSONResponse(content={"error": str(e.detail)}, status_code=e.status_code)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
+
 
 @slack_app.event("app_mention")
 def app_mention_handler(body, say, logger):
@@ -71,9 +79,9 @@ def app_mention_handler(body, say, logger):
     else:
         say("Unexpected response received from CustomGPT.AI")
 
+
 # Handle 'message' events
 @slack_app.event("message")
 def handle_message_events(body, logger):
     # Log the 'message' events
     logger.info(body)
-
