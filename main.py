@@ -39,7 +39,7 @@ def send_to_customgpt(prompt):
 
 
 @app.get("/")
-async def index(request: Request):
+def root(request: Request):
     return {"message": "Hello"}
 
 
